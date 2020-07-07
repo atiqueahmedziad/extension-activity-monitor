@@ -34,13 +34,17 @@
   margin: 50px 15px 10px;
 }
 
-.log-table table {
-  width: 100%;
-}
-
 table {
   width: 100%;
   border: 1px solid #eeeeee;
+  border-collapse: collapse;
+  width: 100%;
+  cursor: pointer;
+}
+
+table thead {
+  position: sticky;
+  top: 0;
 }
 
 th {
@@ -84,16 +88,7 @@ table td {
   height: auto;
 }
 
-table thead {
-  position: sticky;
-  top: 0;
-}
 
-table {
-  border-collapse: collapse;
-  width: 100%;
-  cursor: pointer;
-}
 
 .width-60 {
   width: 60%;
