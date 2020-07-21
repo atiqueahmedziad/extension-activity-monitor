@@ -7,6 +7,7 @@ class Model {
       id: [],
       viewType: [],
       type: [],
+      name: [],
     };
   }
 
@@ -39,6 +40,9 @@ class View {
     this.apiTypeFilter = document.querySelector(
       'filter-option[filter-key="type"]'
     );
+    this.apiNameFilter = document.querySelector(
+      'filter-option[filter-key="name"]'
+    );
 
     this.saveLogBtn.addEventListener('click', this);
   }
@@ -70,6 +74,7 @@ class View {
     this.extFilter.updateFilterCheckboxes(logs);
     this.viewTypeFilter.updateFilterCheckboxes(logs);
     this.apiTypeFilter.updateFilterCheckboxes(logs);
+    this.apiNameFilter.updateFilterCheckboxes(logs);
   }
 
   setError(errorMessage) {
@@ -96,6 +101,7 @@ class Controller {
     this.view.extFilter.addEventListener('filterchange', this);
     this.view.viewTypeFilter.addEventListener('filterchange', this);
     this.view.apiTypeFilter.addEventListener('filterchange', this);
+    this.view.apiNameFilter.addEventListener('filterchange', this);
 
     browser.runtime.onMessage.addListener((message) => {
       const { requestTo, requestType } = message;
