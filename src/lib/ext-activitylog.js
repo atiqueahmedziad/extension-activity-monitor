@@ -8,6 +8,7 @@ class Model {
       viewType: [],
       type: [],
       name: [],
+      keyword: '',
     };
   }
 
@@ -24,6 +25,10 @@ class Model {
     if (logKeyIndex > -1) {
       this.filter[logKey].splice(logKeyIndex, 1);
     }
+  }
+
+  setFilterKeyword(keyword) {
+    this.filter.keyword = keyword;
   }
 }
 
@@ -43,6 +48,8 @@ class View {
     this.apiNameFilter = document.querySelector(
       'filter-option[filter-key="name"]'
     );
+
+    this.keywordFilter = document.querySelector('filter-keyword');
 
     this.saveLogBtn.addEventListener('click', this);
   }
@@ -102,6 +109,7 @@ class Controller {
     this.view.viewTypeFilter.addEventListener('filterchange', this);
     this.view.apiTypeFilter.addEventListener('filterchange', this);
     this.view.apiNameFilter.addEventListener('filterchange', this);
+    this.view.keywordFilter.addEventListener('keywordchange', this);
 
     browser.runtime.onMessage.addListener((message) => {
       const { requestTo, requestType } = message;
@@ -124,15 +132,6 @@ class Controller {
     }
   }
 
-  isFilterMatched(log) {
-    for (const key of Object.keys(this.model.filter)) {
-      if (this.model.filter[key].includes(log[key])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   async getExistingLogs() {
     const { existingLogs } = await browser.runtime.sendMessage({
       requestType: 'sendAllLogs',
@@ -147,12 +146,18 @@ class Controller {
   }
 
   handleEvent(event) {
-    if (event.type === 'savelog') {
-      this.saveLogs();
-    } else if (event.type === 'filterchange') {
-      this.onFilterChange(event.detail);
-    } else {
-      throw new Error(`wrong event type found - ${event.type}`);
+    switch (event.type) {
+      case 'savelog':
+        this.saveLogs();
+        break;
+      case 'filterchange':
+        this.onFilterChange(event.detail);
+        break;
+      case 'keywordchange':
+        this.onKeywordChange(event.detail);
+        break;
+      default:
+        throw new Error(`wrong event type found - ${event.type}`);
     }
   }
 
@@ -170,6 +175,23 @@ class Controller {
 
     this.model[isFilterRemoved ? 'removeFilter' : 'addFilter'](filterDetail);
     this.view.setLogFilter((log) => this.isFilterMatched(log));
+  }
+
+  onKeywordChange(newKeyword) {
+    this.model.setFilterKeyword(newKeyword);
+    this.view.setLogFilter((log) => this.isFilterMatched(log));
+  }
+
+  isFilterMatched(log) {
+    for (const key of Object.keys(this.model.filter)) {
+      if (this.model.filter[key].includes(log[key])) {
+        return true;
+      } else if (key === 'keyword') {
+        const dataStr = JSON.stringify(log.data);
+        return !dataStr.includes(this.model.filter[key]);
+      }
+    }
+    return false;
   }
 }
 
